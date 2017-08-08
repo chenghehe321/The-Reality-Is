@@ -3,13 +3,16 @@ package org.git.chengcheng.life;
 public class LifeCalc {
 
     public static void main( String[ ] args ) {
+        boolean checkpoint = false;
         boolean houseFlag = true;       // 是否买房
         boolean carFlag = true;         // 是否买车
         boolean carDoneFlag = false;
-        double storage = 150000;        // 初始存款
+        double storage = 10000;         // 初始存款
         double taxRate = 0.667;         // 工资上税
-        double in = 13000;              // 工资
-        double in_rate = 0.05;          // 工资年平均上浮比例
+        double in = 10000;              // 工资
+        double in_wife = 5000;          // 老婆工资
+        double in_rate = 0.1;           // 工资年平均上浮比例
+        double in_wife_rate = 0.05;
         int house = 3000;               // 每月房子开销
         int car = 0;                    // 每月车开销
         int year = 10;                  // 预测年数
@@ -24,8 +27,10 @@ public class LifeCalc {
         int childyear = 1;              // 过几年要娃
         for ( int i = 0; i < days; i++ ) {
             if ( storage <= 0 ) {
-                System.out.println( "破产日:[" + i + "," + ( ( double ) i / 365 ) + "年], 税前工资[" + in + "], 手里有[" + storage
-                        + "], 投资账户有[" + invest + "]" );
+                if ( checkpoint ) {
+                    System.out.println( "破产日:[" + i + "," + ( ( double ) i / 365 ) + "年], 税前工资[" + in + "], 手里有["
+                            + storage + "], 投资账户有[" + invest + "]" );
+                }
                 break;
             }
             if ( storage < 20000 ) {// 保底存款两万，小于两万不投资
@@ -34,6 +39,7 @@ public class LifeCalc {
             }
             if ( i % 365 == 0 && i != 0 ) {
                 in = in * ( 1 + in_rate );
+                in_wife = in_wife * ( 1 + in_wife_rate );
                 double profit = invest * yearInvest;
                 allinvest += profit;
                 invest += profit;
@@ -55,7 +61,7 @@ public class LifeCalc {
                 double afterTax = in * taxRate; // 五险一金个税
                 afterTax += ( 2 * in * gjj_rate );// 加上个人与公司部分的公积金
                 storage += afterTax;
-                storage += 5000;// 老婆工资
+                storage += in_wife;
                 allin += afterTax;
                 storage -= house;
                 // storage -= 2000;// 外地房租
@@ -63,8 +69,10 @@ public class LifeCalc {
             }
 
             if ( storage + invest > 200000 && carFlag ) {
-                System.out.println( "买车日:[" + i + "," + ( ( double ) i / 365 ) + "年], 税前工资[" + in + "], 手里有[" + storage
-                        + "], 投资账户有[" + invest + "]" );
+                if ( checkpoint ) {
+                    System.out.println( "买车日:[" + i + "," + ( ( double ) i / 365 ) + "年], 税前工资[" + in + "], 手里有["
+                            + storage + "], 投资账户有[" + invest + "]" );
+                }
                 carDay = i;
                 storage += invest;
                 invest = 0;
@@ -77,8 +85,10 @@ public class LifeCalc {
             // 总存款达到40W时，卖了现在的房子换大房子
             if ( storage + invest > 400000 && houseFlag ) {
                 storage += 1000000;
-                System.out.println( "买房日:[" + i + "," + ( ( double ) i / 365 ) + "年], 税前工资[" + in + "], 手里有[" + storage
-                        + "], 投资账户有[" + invest + "]" );
+                if ( checkpoint ) {
+                    System.out.println( "买房日:[" + i + "," + ( ( double ) i / 365 ) + "年], 税前工资[" + in + "], 手里有["
+                            + storage + "], 投资账户有[" + invest + "]" );
+                }
                 storage += invest;
                 invest = 0;
                 storage -= 1000000;// 首付
@@ -87,8 +97,10 @@ public class LifeCalc {
             }
 
             if ( !carFlag && i - carDay > 365 * 3 && !carDoneFlag ) {
-                System.out.println( "车贷还完日:[" + i + "," + ( ( double ) i / 365 ) + "年], 税前工资[" + in + "], 手里有["
-                        + storage + "], 投资账户有[" + invest + "]" );
+                if ( checkpoint ) {
+                    System.out.println( "车贷还完日:[" + i + "," + ( ( double ) i / 365 ) + "年], 税前工资[" + in + "], 手里有["
+                            + storage + "], 投资账户有[" + invest + "]" );
+                }
                 car -= 5000;
                 carDoneFlag = true;
             }
@@ -116,8 +128,11 @@ public class LifeCalc {
             if ( i > 365 * ( childyear + 2 ) && i % 30 == 0 ) {
                 storage -= 1000;
             }
-            // System.out.println( storage + invest );
+            System.out.println( storage + invest );
         }
-        System.out.println( "总收入:" + allin + ", 总投资收益:" + allinvest );
+        if ( checkpoint ) {
+            System.out.println( "十年后税前工资:" + in + ", 手里有[" + storage + "], 投资账户有[" + invest + "], 总收入:" + allin
+                    + ", 总投资收益:" + allinvest );
+        }
     }
 }
